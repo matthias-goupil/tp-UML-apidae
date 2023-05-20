@@ -15,5 +15,11 @@ public interface I_Catalogue {
 	public abstract String toString();
 
 	public abstract void clear();
+	public String getNom();
 
+	public int getId();
+
+	void setId(int id);
+
+	public I_Produit getProduit(String nomProduit);
 }

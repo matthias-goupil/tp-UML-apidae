@@ -1,5 +1,6 @@
 package controleur;
 
+import dal.CatalogueDAO;
 import dal.DAOFactory;
 import dal.ProductDAO;
 import dal.SQL.SQLFactory;
@@ -9,19 +10,25 @@ import metier.I_Catalogue;
 import java.util.ArrayList;
 
 public abstract class ControleurCatalogue {
-    protected static ProductDAO productDAO = new SQLFactory().getProductDAO();
 
-    protected static I_Catalogue cat = new Catalogue("NomCatalogue", productDAO.readAll());
+    private static DAOFactory sqlFactory = new SQLFactory();
+    protected static ProductDAO productDAO = sqlFactory.getProductDAO();
+    protected static CatalogueDAO catalogueDAO = sqlFactory.getCatalogueDAO();
 
-    private static ArrayList<I_Catalogue> catalogues = new ArrayList<>();
-    private static Catalogue catalogueSelectionne;
+    private static ArrayList<I_Catalogue> catalogues = catalogueDAO.readAll();
+    protected static Catalogue catalogueSelectionne;
 
     public static Catalogue getCatalogueSelectionne() {
         return catalogueSelectionne;
     }
 
     public static boolean ajouterCatalogue(String nomCatalogue) {
-        return catalogues.add(new Catalogue(nomCatalogue));
+        I_Catalogue catalogue = new Catalogue(nomCatalogue);
+        if(catalogueDAO.create(catalogue)) {
+            I_Catalogue newCatalogue = catalogueDAO.read(nomCatalogue);
+            return catalogues.add(newCatalogue);
+        }
+        return false;
     }
 
     public static boolean supprimerCatalogue(String nomCatalogue) {
@@ -32,7 +39,10 @@ public abstract class ControleurCatalogue {
                 index = i;
             }
         }
-        return catalogues.remove(index) != null;
+        if(catalogueDAO.delete(nomCatalogue)) {
+            return catalogues.remove(index) != null;
+        }
+        return false;
     }
 
     public static void selectectionnerCatalogue(String nomCatalogue) {
@@ -42,6 +52,7 @@ public abstract class ControleurCatalogue {
                 catalogueSelectionne = catalogue;
             }
         }
+        catalogueDAO.getProduitsByCatalogue(catalogueSelectionne);
     }
 
     public static String[] demandeListeCatalogue() {
@@ -53,7 +64,7 @@ public abstract class ControleurCatalogue {
     public static String[] demandeListeCatalogueAvecNbProduits() {
         String[] nomCatalogues = new String[catalogues.size()];
         for(int i = 0; i < catalogues.size(); i++)
-            nomCatalogues[i] = ((Catalogue) catalogues.get(i)).getNom() + " : " + catalogues.get(i).getNomProduits().length + " produits";
+            nomCatalogues[i] = ((Catalogue) catalogues.get(i)).getNom() + " : " + catalogueDAO.getNombreProduitsByCatalogue(catalogues.get(i)) + " produits";
         return nomCatalogues;
     }
 

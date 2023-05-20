@@ -9,7 +9,7 @@ import java.util.List;
 public class ControleurVenteAchat extends ControleurCatalogue{
 
     public static String[] demandeVente() {
-        return cat.getNomProduits();
+        return catalogueSelectionne.getNomProduits();
     }
 
     public static String[] demandeAchat() {
@@ -17,11 +17,17 @@ public class ControleurVenteAchat extends ControleurCatalogue{
     }
 
     public static boolean achatProduit(String nomProduit, int quantite) {
-        return getCatalogueSelectionne().acheterStock(nomProduit, quantite);
+        if(getCatalogueSelectionne().acheterStock(nomProduit, quantite)) {
+            System.out.println(catalogueSelectionne.getProduit(nomProduit));
+            return productDAO.update(catalogueSelectionne.getProduit(nomProduit));
+        }
+        return false;
     }
 
     public static boolean venteProduit(String nomProduit, int quantite) {
-
-        return getCatalogueSelectionne().vendreStock(nomProduit, quantite);
+        if(getCatalogueSelectionne().vendreStock(nomProduit, quantite)) {
+            return productDAO.update(catalogueSelectionne.getProduit(nomProduit));
+        }
+        return false;
     }
 }

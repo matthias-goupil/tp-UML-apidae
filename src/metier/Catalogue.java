@@ -8,6 +8,8 @@ import java.util.Locale;
 public class Catalogue implements I_Catalogue{
     private List<I_Produit> productList;
 
+    private int id;
+
     private String nom;
 
     public Catalogue(String nom) {
@@ -121,9 +123,27 @@ public class Catalogue implements I_Catalogue{
         return nom;
     }
 
+    @Override
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public void setNom(String nom) {
         this.nom = nom;
     }
 
+    @Override
+    public I_Produit getProduit(String nomProduit) {
+        for(I_Produit p: productList){
+            if(p.getNom().equals(nomProduit))
+                return p;
+        }
+        return null;
+    }
 
 }

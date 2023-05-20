@@ -8,26 +8,17 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class ProductDAOSQL implements ProductDAO {
-    private final String url = "jdbc:oracle:thin:@162.38.222.149:1521:iut";
-    private String login = "goupilm";
-    private String psw = "04102002";
-    protected Connection cn;
     private String tableName = "Produits";
 
-    private void connection() {
-        try {
-            Class.forName("oracle.jdbc.driver.OracleDriver");
-            cn = DriverManager.getConnection(url, login, psw);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    private Connection cn;
+
+    public ProductDAOSQL(Connection connection) {
+        cn = connection;
     }
+
     @Override
     public boolean create(I_Produit p) {
-        connection();
-        String sql = "INSERT INTO " + tableName + "(quantiteStock, nom, prixUnitaireHT) VALUES(?,?,?)";
+        String sql = "INSERT INTO " + tableName + "(QuantiteStock, Nom, prixUnitaireHT) VALUES(?,?,?)";
         PreparedStatement pst = null;
         try {
             pst = cn.prepareStatement(sql);
@@ -41,17 +32,16 @@ public class ProductDAOSQL implements ProductDAO {
         }
     }
     @Override
-    public I_Produit read(String nom) {
-        connection();
-        String sql = "SELECT * FROM "+tableName+" WHERE nom = ?";
+    public I_Produit read(String Nom) {
+        String sql = "SELECT * FROM "+tableName+" WHERE Nom = ?";
         PreparedStatement pst = null;
         try {
             pst = cn.prepareStatement(sql);
-            pst.setString(1, nom);
+            pst.setString(1, Nom);
 
             ResultSet rs = pst.executeQuery();
             if(rs.next())
-                return new Produit(rs.getString("nom"),rs.getDouble("prixUnitaireHT"),rs.getInt("quantiteStock"));
+                return new Produit(rs.getString("Nom"),rs.getDouble("prixUnitaireHT"),rs.getInt("QuantiteStock"));
             return null;
         } catch (SQLException e){
             System.out.println("Erreur récupération produit");
@@ -60,7 +50,6 @@ public class ProductDAOSQL implements ProductDAO {
     }
     @Override
     public ArrayList<I_Produit> readAll() {
-        connection();
         String sql = "SELECT * FROM "+tableName;
         ArrayList<I_Produit> produits = new ArrayList<>();
         PreparedStatement pst = null;
@@ -68,7 +57,7 @@ public class ProductDAOSQL implements ProductDAO {
             pst = cn.prepareStatement(sql);
             ResultSet rs = pst.executeQuery();
             while(rs.next())
-                produits.add(new Produit(rs.getString("nom"),rs.getDouble("prixUnitaireHT"),rs.getInt("quantiteStock")));
+                produits.add(new Produit(rs.getString("Nom"),rs.getDouble("prixUnitaireHT"),rs.getInt("QuantiteStock")));
             return produits;
         } catch (SQLException e){
             System.out.println("Erreur récupération liste product");
@@ -77,8 +66,7 @@ public class ProductDAOSQL implements ProductDAO {
     }
     @Override
     public boolean update(I_Produit p) {
-        connection();
-        String sql = "UPDATE "+tableName+" SET quantiteStock = ?, prixUnitaireHT = ? WHERE nom = ?";
+        String sql = "UPDATE "+tableName+" SET QuantiteStock = ?, prixUnitaireHT = ? WHERE NomProduit = ?";
 
         PreparedStatement pst = null;
         try {
@@ -94,14 +82,13 @@ public class ProductDAOSQL implements ProductDAO {
     }
 
     @Override
-    public boolean delete(String nom) {
-        connection();
-        String sql = "DELETE FROM "+tableName+" WHERE nom = ?";
+    public boolean delete(String Nom) {
+        String sql = "DELETE FROM "+tableName+" WHERE Nom = ?";
 
         PreparedStatement pst = null;
         try {
             pst = cn.prepareStatement(sql);
-            pst.setString(1,nom);
+            pst.setString(1,Nom);
 
             return (pst.executeUpdate() > 0);
         } catch (SQLException e){
